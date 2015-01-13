@@ -8,8 +8,9 @@ import yaml
 
 class OutbrainAmplifyApi(object):
 
-    def __init__(self):
-        outbrain_config = yaml.load(open('outbrain.yml', 'r'))
+    def __init__(self, outbrain_config=None):
+        if not outbrain_config:
+            outbrain_config = yaml.load(open('outbrain.yml', 'r'))
         self.user = outbrain_config['user']
         self.password = outbrain_config['password']
         self.base_url = outbrain_config['base_url']

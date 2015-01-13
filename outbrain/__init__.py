@@ -3,7 +3,6 @@ from dateutil.parser import parse
 from datetime import datetime, timedelta
 import requests
 import json
-import csv 
 import yaml
 
 class OutbrainAmplifyApi(object):

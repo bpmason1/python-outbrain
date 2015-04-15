@@ -4,21 +4,20 @@ except ImportError:
     from distutils.core import setup
 import os
 
-with open('requirements.txt') as f:
-    PACKAGE_INSTALL_REQUIRES = [line[:-1] for line in f]
-
-with open('README.md') as file:
-    PACKAGE_LONG_DESCRIPTION = file.read()
-
 setup(
     name='outbrain',
-    version='0.0.2',
+    version='0.0.3',
     author='Alan Anders',
     author_email='aanders@simplereach.com',
     url='https://github.com/andessen/python-outbrain',
     packages=['outbrain'],
     license='LGPL 2.1 or later',
     description='Wrapper for the Outbrain Amplify API',
-    long_description=PACKAGE_LONG_DESCRIPTION,
-    install_requires=PACKAGE_INSTALL_REQUIRES,
+    install_requires=[
+        'python-dateutil >= 2.1',
+        'requests >= 2.4.3',
+        'pyyaml >= 3.10',
+    ],
+    classifiers=['Intended Audience :: Developers',
+                 'Development Status :: 1 - Planning']
 )

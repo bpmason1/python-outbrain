@@ -30,7 +30,7 @@ class OutbrainAmplifyApi(object):
     # Methods to acquire marketer information
     #----------------------------------------------------------------------------------------------
     def get_marketer(self, marketer_id):
-        path = 'marketers/{}'.format(marketer_id)
+        path = 'marketers/{0}'.format(marketer_id)
         result = self._request(path)
         return result
 
@@ -51,7 +51,7 @@ class OutbrainAmplifyApi(object):
     # Methods to acquire budget information
     #----------------------------------------------------------------------------------------------
     def get_budget(self, budget_id):
-        path = 'budgets/{}'.format(budget_id)
+        path = 'budgets/{0}'.format(budget_id)
         result = self._request(path)
         return result
 
@@ -94,11 +94,11 @@ class OutbrainAmplifyApi(object):
             campaigns[budget_id] = budget_campaigns
         return campaigns
 
-    def get_campaigns_per_marketer(self, marketing_ids):
+    def get_campaigns_per_marketer(self, marketing_ids, include_archived=True):
         campaigns = {}
         for marketing_id in marketing_ids:
             path = 'marketers/' + marketing_id + '/campaigns'
-            params = {'includeArchived': True}
+            params = {'includeArchived': 'true' if include_archived else 'false'}
             results = self._request(path, params)            
             marketer_campaigns = results['campaigns']
             campaigns[marketing_id] = marketer_campaigns
@@ -107,28 +107,28 @@ class OutbrainAmplifyApi(object):
     #----------------------------------------------------------------------------------------------
     # Methods to acquire performance information
     #----------------------------------------------------------------------------------------------
-    def get_daily_performance(self, promoted_link_ids, start_day=None, end_day=None):
-        if not end_day:
-            end_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)    
-        if not start_day:
-            start_day = end_day - timedelta(days=1)
-        
-        daily_link_performance = {}
-        for promoted_link_id in promoted_link_ids:
-            path = 'promotedLinks/' + promoted_link_id + '/performanceByDay/'
-            
-            daily_link_performance[promoted_link_id] = {}
-            current_day = start_day
-            while current_day < end_day:
-                next_day = current_day + timedelta(days=1)
-                params = {'from': current_day.date(), 'to': next_day.date()}
-                results = self._request(path, params)
-                
-                metrics = results['overallMetrics']
-                if metrics['cost'] + metrics['impressions'] + metrics['clicks'] > 0:
-                    daily_link_performance[promoted_link_id][current_day] = metrics
-                current_day += timedelta(days=1)
-        return daily_link_performance
+    # def get_daily_performance(self, promoted_link_ids, start_day=None, end_day=None):
+    #     if not end_day:
+    #         end_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)    
+    #     if not start_day:
+    #         start_day = end_day - timedelta(days=1)
+    #     
+    #     daily_link_performance = {}
+    #     for promoted_link_id in promoted_link_ids:
+    #         path = 'promotedLinks/' + promoted_link_id + '/performanceByDay/'
+    #         
+    #         daily_link_performance[promoted_link_id] = {}
+    #         current_day = start_day
+    #         while current_day < end_day:
+    #             next_day = current_day + timedelta(days=1)
+    #             params = {'from': current_day.date(), 'to': next_day.date()}
+    #             results = self._request(path, params)
+    #             
+    #             metrics = results['overallMetrics']
+    #             if metrics['cost'] + metrics['impressions'] + metrics['clicks'] > 0:
+    #                 daily_link_performance[promoted_link_id][current_day] = metrics
+    #             current_day += timedelta(days=1)
+    #     return daily_link_performance
 
     #----------------------------------------------------------------------------------------------
     # Methods to acquire promoted link information
@@ -154,7 +154,7 @@ class OutbrainAmplifyApi(object):
             promoted_links = self._page_promoted_links_for_campaign(campaign_id, enabled, statuses, 50, offset)
 
     def _page_promoted_links_for_campaign(self, campaign_id, enabled, statuses, limit, offset):
-        path = 'campaigns/{}/promotedLinks'.format(campaign_id)
+        path = 'campaigns/{0}/promotedLinks'.format(campaign_id)
         params = {'limit': limit,
                   'offset': offset}
 

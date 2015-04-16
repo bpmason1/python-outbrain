@@ -1,5 +1,6 @@
 from mock import patch, MagicMock
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_raises, assert_true
+
 import outbrain
 import unittest
 import yaml
@@ -27,6 +28,7 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
         assert_equal(api.token, "token_mock")
         result = api._request('path_mock', 'params_mock')
+        assert_true(isinstance(result, dict))
         assert_equal(result, {'request_key': 'request_value'})
 
     @patch('requests.get')
@@ -37,6 +39,58 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
         assert_equal(api.token, {"mock_key": "mock_value"})
 
+    @patch('outbrain.OutbrainAmplifyApi._request')
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_campaign(self, _request_mock):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+
+        path = 'campaigns/campaign_id_mock'
+        _request_mock.return_value = '_request_return_mock'
+        result = api.get_campaign('campaign_id_mock')
+        _request_mock.assert_called_with(path)
+        assert_equal(result, _request_mock.return_value)
+
+
+    @patch('outbrain.OutbrainAmplifyApi._request')
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_all_campaign_ids(self, _request_mock):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+
+        api._yield_all_campaign_ids = MagicMock(return_value= [])
+        res = api.get_all_campaign_ids()
+        assert_equal(res, [])
+
+        api._yield_all_campaign_ids = MagicMock(return_value= ['x', 'y', 'z'])
+        res = api.get_all_campaign_ids()
+        assert_equal(res, ['x', 'y', 'z'])
+
+    @patch('outbrain.OutbrainAmplifyApi._request')
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_campaigns_per_marketer(self, _request_mock):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+        path = 'marketers/abc123/campaigns'
+
+        assert_raises(TypeError, api.get_campaigns_per_marketer)
+
+        _request_mock.reset_mock()
+        api.get_campaigns_per_marketer([])
+        assert not _request_mock.called
+
+        _request_mock.reset_mock()
+        api.get_campaigns_per_marketer(['abc123'])
+        _request_mock.assert_called_with(path, {'includeArchived': 'true'})
+
+        _request_mock.reset_mock()
+        api.get_campaigns_per_marketer(['abc123'], include_archived=True)
+        _request_mock.assert_called_with(path, {'includeArchived': 'true'})
+
+        _request_mock.reset_mock()
+        api.get_campaigns_per_marketer(['abc123'], include_archived=False)
+        _request_mock.assert_called_with(path, {'includeArchived': 'false'})
+
     @patch('requests.get', MagicMock())
     @patch('outbrain.OutbrainAmplifyApi._yield_promoted_links_for_campaign',
            MagicMock(return_value=[1, 'b', 3]))
@@ -46,6 +100,37 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
         result = api.get_promoted_links_for_campaign('campaign_id_mock')
         assert_equal(result, [1, 'b', 3])
+
+    @patch('requests.get', MagicMock())
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    @patch('outbrain.OutbrainAmplifyApi._request')
+    def test_page_promoted_links_for_campaign(self, _request_mock):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+
+        _request_mock.reset_mock()
+        _request_mock.return_value = {'promotedLinks': []}
+        res = api._page_promoted_links_for_campaign('123abc', True, [], 10, 0)
+        path = 'campaigns/123abc/promotedLinks'
+        params = {'enabled': 'true', 'limit': 10, 'offset': 0}
+        _request_mock.assert_called_with(path, params)
+        assert_equal(res, [])
+        
+        _request_mock.reset_mock()
+        _request_mock.return_value = {'promotedLinks': [1, 2, 'c']}
+        res = api._page_promoted_links_for_campaign('a1b2c3', False, ['APPROVED', 'PENDING'], 12, 2)
+        path = 'campaigns/a1b2c3/promotedLinks'
+        params = {'enabled': 'false', 'limit': 12, 'offset': 2, 'statuses': 'APPROVED,PENDING'}
+        _request_mock.assert_called_with(path, params)
+        assert_equal(res, [1, 2, 'c'])
+
+        _request_mock.return_value = {'foo': 2}
+        res = api._page_promoted_links_for_campaign('a1b2c3', None, ['PENDING'], 15, 5)
+        path = 'campaigns/a1b2c3/promotedLinks'
+        params = {'limit': 15, 'offset': 5, 'statuses': 'PENDING'}
+        _request_mock.assert_called_with(path, params)
+        assert_equal(res, [])
+
 
 #--------------------------------------------------------------------------------------------------
 # Utility methods to ease mocking objects

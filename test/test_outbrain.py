@@ -39,6 +39,57 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
         assert_equal(api.token, {"mock_key": "mock_value"})
 
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_marketer(self):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+
+        api._request = MagicMock(return_value='result_mock')
+        assert_raises(TypeError, api.get_marketer) # needs an argument
+        result = api.get_marketer('my_id')
+        api._request.assert_called_with('marketers/my_id')
+        assert_equal(result, 'result_mock')
+
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_all_marketer_ids(self):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+        api._yield_all_marketer_ids = MagicMock(return_value=[1, 2])
+        res = api.get_all_marketer_ids()
+        assert_equal(res, [1, 2])
+
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_budget(self):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+
+        api._request = MagicMock(return_value='result_mock')
+        assert_raises(TypeError, api.get_budget) # needs an argument
+        result = api.get_budget('my_budget_id')
+        api._request.assert_called_with('budgets/my_budget_id')
+        assert_equal(result, 'result_mock')
+
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_budgets_per_marketer(self):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+
+        api._request = MagicMock()
+        marketer_ids = []
+        api.get_budgets_per_marketer([])
+        assert_equal(api._request.call_count, 0)
+
+        api._request = MagicMock(return_value={'budgets': 'budget_mock'})
+        result = api.get_budgets_per_marketer(['foo'])
+        assert_equal(api._request.call_count, 1)
+        api._request.assert_called_with('/marketers/foo/budgets')
+        assert_equal(result, {'foo': 'budget_mock'})
+
+        api._request = MagicMock()
+        marketer_ids = [m for m in range(42)]
+        api.get_budgets_per_marketer(marketer_ids)
+        assert_equal(api._request.call_count, len(marketer_ids))
+
     @patch('outbrain.OutbrainAmplifyApi._request')
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
     def test_get_campaign(self, _request_mock):
@@ -50,7 +101,6 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         result = api.get_campaign('campaign_id_mock')
         _request_mock.assert_called_with(path)
         assert_equal(result, _request_mock.return_value)
-
 
     @patch('outbrain.OutbrainAmplifyApi._request')
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
@@ -65,6 +115,26 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api._yield_all_campaign_ids = MagicMock(return_value= ['x', 'y', 'z'])
         res = api.get_all_campaign_ids()
         assert_equal(res, ['x', 'y', 'z'])
+
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_campaigns_per_budget(self):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+
+        api._request = MagicMock()
+        api.get_campaigns_per_budget([])
+        assert_equal(api._request.call_count, 0)
+
+        api._request = MagicMock(return_value={'campaigns': 'budget_mock'})
+        result = api.get_campaigns_per_budget(['foo'])
+        assert_equal(api._request.call_count, 1)
+        api._request.assert_called_with('budgets/foo/campaigns')
+        assert_equal(result, {'foo': 'budget_mock'})
+
+        api._request = MagicMock()
+        budget_ids = [b for b in range(7)]
+        api.get_campaigns_per_budget(budget_ids)
+        assert_equal(api._request.call_count, len(budget_ids))
 
     @patch('outbrain.OutbrainAmplifyApi._request')
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())

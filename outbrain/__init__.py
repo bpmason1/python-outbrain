@@ -108,6 +108,36 @@ class OutbrainAmplifyApi(object):
     #----------------------------------------------------------------------------------------------
     # Methods to acquire performance information
     #----------------------------------------------------------------------------------------------
+    def get_publisher_performace_per_marketer(self, marketer_ids, start_day, end_day):
+        performance = dict()
+        for m in marketer_ids:
+            performance[m] = self.get_publisher_performace_for_marketer(marketer_id, start_day, end_day)
+        return performance
+
+    def get_publisher_performace_for_marketer(self, marketer_id, start_day, end_day):
+        start = start_day.strftime('%Y-%m-%d')
+        end = end_day.strftime('%Y-%m-%d')
+        return [perf for perf in self._yield_publisher_performace_for_marketer(marketer_id, start, end)]
+
+    def _yield_publisher_performace_for_marketer(self, marketer_id, start, end):
+        offset = 0
+        performance = self._page_publisher_performace_for_marketer(marketer_id, start, end, 50, offset)
+        while performance:
+            for perf in performance:
+                yield perf
+
+            offset += len(performance)
+            performance = self._page_publisher_performace_for_marketer(marketer_id, start, end, 50, offset)
+
+    def _page_publisher_performace_for_marketer(self, marketer_id, start, end, limit, offset):
+        path = 'marketers/{0}/performanceByPublisher'.format(marketer_id)
+        params = {'limit': limit,
+                  'offset': offset,
+                  'to': start.strftime('%Y-%m-%d'),
+                  'from': end.strftime('%Y-%m-%d')}
+        result = self._request(path, params)
+        return result.get('details', [])
+
     # def get_daily_performance(self, promoted_link_ids, start_day=None, end_day=None):
     #     if not end_day:
     #         end_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)    

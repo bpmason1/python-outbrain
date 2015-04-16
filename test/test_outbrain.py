@@ -1,6 +1,7 @@
 from mock import patch, MagicMock
 from nose.tools import assert_equal, assert_raises, assert_true
 
+import datetime
 import outbrain
 import unittest
 import yaml
@@ -170,6 +171,28 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
         result = api.get_promoted_links_for_campaign('campaign_id_mock')
         assert_equal(result, [1, 'b', 3])
+
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_page_publisher_performace_for_marketer(self):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+
+        start = datetime.datetime(year=2015, month=4, day=1, hour=13, minute=42)
+        end = datetime.datetime(year=2015, month=4, day=3, hour=19, minute=24)
+        path = 'marketers/marketer_id_mock/performanceByPublisher'
+        params = {'to': '2015-04-01', 'from': '2015-04-03', 'limit': 20, 'offset': 3}
+
+        path = 'marketers/marketer_id_mock/performanceByPublisher'
+        params = {'to': '2015-04-01', 'from': '2015-04-03', 'limit': 20, 'offset': 3}
+        api._request = MagicMock(return_value={})
+        result = api._page_publisher_performace_for_marketer('marketer_id_mock', start, end, 20, 3)
+        api._request.assert_called_with(path, params)
+        assert_equal(result, [])
+
+        api._request = MagicMock(return_value={'details': 'details_mock'})
+        result = api._page_publisher_performace_for_marketer('marketer_id_mock', start, end, 20, 3)
+        api._request.assert_called_with(path, params)
+        assert_equal(result, 'details_mock')
 
     @patch('requests.get', MagicMock())
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())

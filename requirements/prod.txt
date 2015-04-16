@@ -1,3 +1,4 @@
 python-dateutil >= 2.1
 requests >= 2.4.3
 pyyaml >= 3.10
+simplejson == 3.6.5

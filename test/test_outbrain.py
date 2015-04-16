@@ -37,6 +37,16 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
         assert_equal(api.token, {"mock_key": "mock_value"})
 
+    @patch('requests.get', MagicMock())
+    @patch('outbrain.OutbrainAmplifyApi._yield_promoted_links_for_campaign',
+           MagicMock(return_value=[1, 'b', 3]))
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_promoted_links_for_campaign(self):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+        result = api.get_promoted_links_for_campaign('campaign_id_mock')
+        assert_equal(result, [1, 'b', 3])
+
 #--------------------------------------------------------------------------------------------------
 # Utility methods to ease mocking objects
 #--------------------------------------------------------------------------------------------------

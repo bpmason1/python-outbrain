@@ -1,7 +1,7 @@
 from dateutil.parser import parse
 from datetime import datetime, timedelta
 import requests
-import json
+import simplejson as json
 import yaml
 
 class OutbrainAmplifyApi(object):
@@ -145,7 +145,7 @@ class OutbrainAmplifyApi(object):
 
     def _yield_promoted_links_for_campaign(self, campaign_id, enabled=None, statuses=[]):
         offset = 0
-        promoted_links = self._fetch_promoted_links_for_campaign(campaign_id, enabled, statuses, 50, offset)
+        promoted_links = self._page_promoted_links_for_campaign(campaign_id, enabled, statuses, 50, offset)
         while promoted_links:
             for pl in promoted_links:
                 yield pl

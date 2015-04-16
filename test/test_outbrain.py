@@ -201,6 +201,23 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         _request_mock.assert_called_with(path, params)
         assert_equal(res, [])
 
+    @patch('outbrain.OutbrainAmplifyApi._request')
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_get_campaign(self, _request_mock):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+
+        path = 'currencies'
+        _request_mock.return_value = {}
+        result = api.get_currencies()
+        _request_mock.assert_called_with(path)
+        assert_equal(result, [])
+
+        _request_mock.return_value = {'currencies': 'currency_list_mock'}
+        result = api.get_currencies()
+        _request_mock.assert_called_with(path)
+        assert_equal(result, 'currency_list_mock')
+
 
 #--------------------------------------------------------------------------------------------------
 # Utility methods to ease mocking objects

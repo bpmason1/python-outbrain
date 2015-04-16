@@ -22,7 +22,8 @@ class OutbrainAmplifyApi(object):
 
     def get_token(self, user, password):
         token_url = self.base_url + '/login'
-        r = requests.get(token_url, auth=(user, password))
+        basic_auth = requests.auth.HTTPBasicAuth(user, password)
+        r = requests.get(token_url, auth=basic_auth)
         results = json.loads(r.text)
         return results['OB-TOKEN-V1']
 
@@ -165,3 +166,9 @@ class OutbrainAmplifyApi(object):
 
         return self._request(path, params).get('promotedLinks', [])
 
+    #----------------------------------------------------------------------------------------------
+    # Other methods
+    #----------------------------------------------------------------------------------------------
+    def get_currencies(self):
+        results = self._request('currencies')
+        return results.get('currencies', [])

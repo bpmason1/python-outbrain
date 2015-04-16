@@ -1,5 +1,2 @@
-# configuration files
-*.yml
-
 # python compiled byte code
-*.pyc
+*.py[co]

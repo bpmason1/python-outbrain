@@ -125,16 +125,16 @@ class OutbrainAmplifyApi(object):
 
     def _yield_publisher_performace_for_marketer(self, marketer_id, start, end):
         offset = 0
-        performance = self._page_publisher_performace_for_marketer(marketer_id, start, end, 50, offset)
+        path = 'marketers/{0}/performanceByPublisher'.format(marketer_id)
+        performance = self._page_performance_data(path, start, end, 50, offset)
         while performance:
             for perf in performance:
                 yield perf
 
             offset += len(performance)
-            performance = self._page_publisher_performace_for_marketer(marketer_id, start, end, 50, offset)
+            performance = self._page_performance_data(path, start, end, 50, offset)
 
-    def _page_publisher_performace_for_marketer(self, marketer_id, start, end, limit, offset):
-        path = 'marketers/{0}/performanceByPublisher'.format(marketer_id)
+    def _page_performance_data(self, path, start, end, limit, offset):
         params = {'limit': limit,
                   'offset': offset,
                   'from': start.strftime('%Y-%m-%d'),
@@ -180,16 +180,16 @@ class OutbrainAmplifyApi(object):
 
     def _yield_promoted_links_for_campaign(self, campaign_id, enabled=None, statuses=[]):
         offset = 0
-        promoted_links = self._page_promoted_links_for_campaign(campaign_id, enabled, statuses, 50, offset)
+        path = 'campaigns/{0}/promotedLinks'.format(campaign_id)
+        promoted_links = self._page_promoted_links_for_campaign(path, enabled, statuses, 50, offset)
         while promoted_links:
             for pl in promoted_links:
                 yield pl
 
             offset += len(promoted_links)
-            promoted_links = self._page_promoted_links_for_campaign(campaign_id, enabled, statuses, 50, offset)
+            promoted_links = self._page_promoted_links_for_campaign(path, enabled, statuses, 50, offset)
 
-    def _page_promoted_links_for_campaign(self, campaign_id, enabled, statuses, limit, offset):
-        path = 'campaigns/{0}/promotedLinks'.format(campaign_id)
+    def _page_promoted_links_for_campaign(self, path, enabled, statuses, limit, offset):
         params = {'limit': limit,
                   'offset': offset}
 

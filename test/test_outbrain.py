@@ -173,7 +173,7 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         assert_equal(result, [1, 'b', 3])
 
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
-    def test_page_publisher_performace_for_marketer(self):
+    def test_page_performance_data(self):
         config = yaml.load(open('outbrain.yml.example', 'r'))
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
 
@@ -185,12 +185,12 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         path = 'marketers/marketer_id_mock/performanceByPublisher'
         params = {'from': '2015-04-01', 'to': '2015-04-03', 'limit': 20, 'offset': 3}
         api._request = MagicMock(return_value={})
-        result = api._page_publisher_performace_for_marketer('marketer_id_mock', start, end, 20, 3)
+        result = api._page_performance_data(path, start, end, 20, 3)
         api._request.assert_called_with(path, params)
         assert_equal(result, [])
 
         api._request = MagicMock(return_value={'details': 'details_mock'})
-        result = api._page_publisher_performace_for_marketer('marketer_id_mock', start, end, 20, 3)
+        result = api._page_performance_data(path, start, end, 20, 3)
         api._request.assert_called_with(path, params)
         assert_equal(result, 'details_mock')
 
@@ -203,23 +203,23 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
 
         _request_mock.reset_mock()
         _request_mock.return_value = {'promotedLinks': []}
-        res = api._page_promoted_links_for_campaign('123abc', True, [], 10, 0)
         path = 'campaigns/123abc/promotedLinks'
+        res = api._page_promoted_links_for_campaign(path, True, [], 10, 0)
         params = {'enabled': 'true', 'limit': 10, 'offset': 0}
         _request_mock.assert_called_with(path, params)
         assert_equal(res, [])
         
         _request_mock.reset_mock()
         _request_mock.return_value = {'promotedLinks': [1, 2, 'c']}
-        res = api._page_promoted_links_for_campaign('a1b2c3', False, ['APPROVED', 'PENDING'], 12, 2)
         path = 'campaigns/a1b2c3/promotedLinks'
+        res = api._page_promoted_links_for_campaign(path, False, ['APPROVED', 'PENDING'], 12, 2)
         params = {'enabled': 'false', 'limit': 12, 'offset': 2, 'statuses': 'APPROVED,PENDING'}
         _request_mock.assert_called_with(path, params)
         assert_equal(res, [1, 2, 'c'])
 
         _request_mock.return_value = {'foo': 2}
-        res = api._page_promoted_links_for_campaign('a1b2c3', None, ['PENDING'], 15, 5)
         path = 'campaigns/a1b2c3/promotedLinks'
+        res = api._page_promoted_links_for_campaign(path, None, ['PENDING'], 15, 5)
         params = {'limit': 15, 'offset': 5, 'statuses': 'PENDING'}
         _request_mock.assert_called_with(path, params)
         assert_equal(res, [])

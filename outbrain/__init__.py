@@ -40,13 +40,12 @@ class OutbrainAmplifyApi(object):
         results = self._request(path)
         return results['marketers']
 
-    def get_all_marketer_ids(self):
-        return [m for m in self._yield_all_marketer_ids()]
-
-    def _yield_all_marketer_ids(self):
+    def get_marketer_ids(self):
         marketers = self.get_marketers()
+        marketer_ids = []
         for m in marketers:
-            yield m
+            marketer_ids.append(m['id'])
+        return marketer_ids
 
     #----------------------------------------------------------------------------------------------
     # Methods to acquire budget information
@@ -74,7 +73,7 @@ class OutbrainAmplifyApi(object):
         result = self._request(path)
         return result
 
-    def get_all_campaign_ids(self):
+    def get_campaign_ids(self):
         return [c for c in self._yield_all_campaign_ids()]
 
     def _yield_all_campaign_ids(self):
@@ -106,7 +105,7 @@ class OutbrainAmplifyApi(object):
         return campaigns
 
     #----------------------------------------------------------------------------------------------
-    # Methods to acquire performance information
+    # Methods to acquire specific performance information
     #----------------------------------------------------------------------------------------------
     def get_campaign_performace_per_publisher(self, campaign_ids, start_day, end_day):
         """
@@ -116,25 +115,10 @@ class OutbrainAmplifyApi(object):
         for c in campaign_ids:
             path = 'campaigns/{0}/performanceByPublisher'.format(c)
             performance[c] = dict()
-            result = self._accumulate_campaign_performance(path, start_day, end_day)
+            result = self._get_performance_data_for_path(path, start_day, end_day)
             for pub_data in result:
                 performance[c][pub_data['id']] = pub_data
         return performance
-
-    def _accumulate_campaign_performance(self, path, start, end):
-        return [perf for perf in self._yield_campaign_performace_for_publisher(path, start, end)]
-
-    def _yield_campaign_performace_for_publisher(self, path, start, end):
-        offset = 0
-        performance = self._page_performance_data(path, start, end, 50, offset)
-        while performance:
-            for perf in performance:
-                yield perf
-
-            offset += len(performance)
-            performance = self._page_performance_data(path, start, end, 50, offset)
-
-    #----------------------------------------------------------------------------------------------
 
     def get_publisher_performace_per_marketer(self, marketer_ids, start_day, end_day):
         """
@@ -144,25 +128,26 @@ class OutbrainAmplifyApi(object):
         for m in marketer_ids:
             path = 'marketers/{0}/performanceByPublisher'.format(m)
             performance[m] = dict()
-            result = self._accumulate_publisher_performance(path, start_day, end_day)
+            result = self._get_performance_data_for_path(path, start_day, end_day)
             for pub_data in result:
                 performance[m][pub_data['id']] = pub_data
         return performance
 
-    def _accumulate_publisher_performance(self, path, start, end):
-        return [perf for perf in self._yield_publisher_performace_for_marketer(path, start, end)]
-
-    def _yield_publisher_performace_for_marketer(self, path, start, end):
+    #----------------------------------------------------------------------------------------------
+    # "Private" helper methods for acquiring/paging performance information
+    #----------------------------------------------------------------------------------------------
+    def _get_performance_data_for_path(self, path, start, end):
+        result = []
         offset = 0
+
         performance = self._page_performance_data(path, start, end, 50, offset)
         while performance:
-            for perf in performance:
-                yield perf
+            result.extend(performance)
 
             offset += len(performance)
             performance = self._page_performance_data(path, start, end, 50, offset)
+        return result
 
-    #----------------------------------------------------------------------------------------------
     def _page_performance_data(self, path, start, end, limit, offset):
         params = {'limit': limit,
                   'offset': offset,
@@ -199,7 +184,7 @@ class OutbrainAmplifyApi(object):
     # Methods to acquire promoted link information
     #----------------------------------------------------------------------------------------------
     def get_promoted_links_per_campaign(self, campaign_ids=[], enabled=None, statuses=[]):
-        campaign_ids = campaign_ids or self.get_all_campaign_ids()
+        campaign_ids = campaign_ids or self.get_campaign_ids()
         promoted_links = dict()
         for c in campaign_ids:
             promoted_links[c] = self.get_promoted_links_for_campaign(c, enabled, statuses)

@@ -55,8 +55,8 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
     def test_get_all_marketer_ids(self):
         config = yaml.load(open('outbrain.yml.example', 'r'))
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
-        api._yield_all_marketer_ids = MagicMock(return_value=[1, 2])
-        res = api.get_all_marketer_ids()
+        api.get_marketers = MagicMock(return_value=[{'id': 1}, {'id': 2}])
+        res = api.get_marketer_ids()
         assert_equal(res, [1, 2])
 
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
@@ -105,16 +105,16 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
 
     @patch('outbrain.OutbrainAmplifyApi._request')
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
-    def test_get_all_campaign_ids(self, _request_mock):
+    def test_get_campaign_ids(self, _request_mock):
         config = yaml.load(open('outbrain.yml.example', 'r'))
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
 
         api._yield_all_campaign_ids = MagicMock(return_value= [])
-        res = api.get_all_campaign_ids()
+        res = api.get_campaign_ids()
         assert_equal(res, [])
 
         api._yield_all_campaign_ids = MagicMock(return_value= ['x', 'y', 'z'])
-        res = api.get_all_campaign_ids()
+        res = api.get_campaign_ids()
         assert_equal(res, ['x', 'y', 'z'])
 
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())

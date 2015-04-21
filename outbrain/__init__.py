@@ -108,24 +108,24 @@ class OutbrainAmplifyApi(object):
     #----------------------------------------------------------------------------------------------
     # Methods to acquire performance information
     #----------------------------------------------------------------------------------------------
-    def get_publisher_performace_per_marketer(self, marketer_ids, start_day, end_day):
+    def get_campaign_performace_per_publisher(self, campaign_ids, start_day, end_day):
         """
-        :returns: dict[marketer_id][publisher_id] = performance_data
+        :returns: dict[campaign_id][publisher_id] = performance_data
         """
         performance = dict()
-        for m in marketer_ids:
-            performance[m] = dict()
-            result = self.get_publisher_performace_for_marketer(m, start_day, end_day)
+        for c in campaign_ids:
+            path = 'campaigns/{0}/performanceByPublisher'.format(c)
+            performance[c] = dict()
+            result = self._accumulate_campaign_performance(path, start_day, end_day)
             for pub_data in result:
-                performance[m][pub_data['id']] = pub_data
+                performance[c][pub_data['id']] = pub_data
         return performance
 
-    def get_publisher_performace_for_marketer(self, marketer_id, start, end):
-        return [perf for perf in self._yield_publisher_performace_for_marketer(marketer_id, start, end)]
+    def _accumulate_campaign_performance(self, path, start, end):
+        return [perf for perf in self._yield_campaign_performace_for_publisher(path, start, end)]
 
-    def _yield_publisher_performace_for_marketer(self, marketer_id, start, end):
+    def _yield_campaign_performace_for_publisher(self, path, start, end):
         offset = 0
-        path = 'marketers/{0}/performanceByPublisher'.format(marketer_id)
         performance = self._page_performance_data(path, start, end, 50, offset)
         while performance:
             for perf in performance:
@@ -134,6 +134,35 @@ class OutbrainAmplifyApi(object):
             offset += len(performance)
             performance = self._page_performance_data(path, start, end, 50, offset)
 
+    #----------------------------------------------------------------------------------------------
+
+    def get_publisher_performace_per_marketer(self, marketer_ids, start_day, end_day):
+        """
+        :returns: dict[marketer_id][publisher_id] = performance_data
+        """
+        performance = dict()
+        for m in marketer_ids:
+            path = 'marketers/{0}/performanceByPublisher'.format(m)
+            performance[m] = dict()
+            result = self._accumulate_publisher_performance(path, start_day, end_day)
+            for pub_data in result:
+                performance[m][pub_data['id']] = pub_data
+        return performance
+
+    def _accumulate_publisher_performance(self, path, start, end):
+        return [perf for perf in self._yield_publisher_performace_for_marketer(path, start, end)]
+
+    def _yield_publisher_performace_for_marketer(self, path, start, end):
+        offset = 0
+        performance = self._page_performance_data(path, start, end, 50, offset)
+        while performance:
+            for perf in performance:
+                yield perf
+
+            offset += len(performance)
+            performance = self._page_performance_data(path, start, end, 50, offset)
+
+    #----------------------------------------------------------------------------------------------
     def _page_performance_data(self, path, start, end, limit, offset):
         params = {'limit': limit,
                   'offset': offset,
@@ -141,6 +170,7 @@ class OutbrainAmplifyApi(object):
                   'to': end.strftime('%Y-%m-%d')}
         result = self._request(path, params)
         return result.get('details', [])
+    #----------------------------------------------------------------------------------------------
 
     # def get_daily_performance(self, promoted_link_ids, start_day=None, end_day=None):
     #     if not end_day:

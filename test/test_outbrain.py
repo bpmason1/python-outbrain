@@ -183,7 +183,7 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         params = {'to': '2015-04-01', 'from': '2015-04-03', 'limit': 20, 'offset': 3}
 
         path = 'marketers/marketer_id_mock/performanceByPublisher'
-        params = {'to': '2015-04-01', 'from': '2015-04-03', 'limit': 20, 'offset': 3}
+        params = {'from': '2015-04-01', 'to': '2015-04-03', 'limit': 20, 'offset': 3}
         api._request = MagicMock(return_value={})
         result = api._page_publisher_performace_for_marketer('marketer_id_mock', start, end, 20, 3)
         api._request.assert_called_with(path, params)

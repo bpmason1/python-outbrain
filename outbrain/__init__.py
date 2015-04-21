@@ -109,14 +109,18 @@ class OutbrainAmplifyApi(object):
     # Methods to acquire performance information
     #----------------------------------------------------------------------------------------------
     def get_publisher_performace_per_marketer(self, marketer_ids, start_day, end_day):
+        """
+        :returns: dict[marketer_id][publisher_id] = performance_data
+        """
         performance = dict()
         for m in marketer_ids:
-            performance[m] = self.get_publisher_performace_for_marketer(marketer_id, start_day, end_day)
+            performance[m] = dict()
+            result = self.get_publisher_performace_for_marketer(m, start_day, end_day)
+            for pub_data in result:
+                performance[m][pub_data['id']] = pub_data
         return performance
 
-    def get_publisher_performace_for_marketer(self, marketer_id, start_day, end_day):
-        start = start_day.strftime('%Y-%m-%d')
-        end = end_day.strftime('%Y-%m-%d')
+    def get_publisher_performace_for_marketer(self, marketer_id, start, end):
         return [perf for perf in self._yield_publisher_performace_for_marketer(marketer_id, start, end)]
 
     def _yield_publisher_performace_for_marketer(self, marketer_id, start, end):
@@ -133,8 +137,8 @@ class OutbrainAmplifyApi(object):
         path = 'marketers/{0}/performanceByPublisher'.format(marketer_id)
         params = {'limit': limit,
                   'offset': offset,
-                  'to': start.strftime('%Y-%m-%d'),
-                  'from': end.strftime('%Y-%m-%d')}
+                  'from': start.strftime('%Y-%m-%d'),
+                  'to': end.strftime('%Y-%m-%d')}
         result = self._request(path, params)
         return result.get('details', [])
 

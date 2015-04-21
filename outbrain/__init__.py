@@ -116,8 +116,21 @@ class OutbrainAmplifyApi(object):
             path = 'campaigns/{0}/performanceByPublisher'.format(c)
             performance[c] = dict()
             result = self._get_performance_data_for_path(path, start_day, end_day)
-            for pub_data in result:
-                performance[c][pub_data['id']] = pub_data
+            for data in result:
+                performance[c][data['id']] = data
+        return performance
+
+    def get_marketers_performace_per_section(self, marketer_ids, start_day, end_day):
+        """
+        :returns: dict[marketer_id][section] = performance_data
+        """
+        performance = dict()
+        for m in marketer_ids:
+            path = 'marketers/{0}/performanceBySection'.format(m)
+            performance[m] = dict()
+            result = self._get_performance_data_for_path(path, start_day, end_day)
+            for data in result:
+                performance[m][data['id']] = data
         return performance
 
     def get_publisher_performace_per_marketer(self, marketer_ids, start_day, end_day):
@@ -129,8 +142,21 @@ class OutbrainAmplifyApi(object):
             path = 'marketers/{0}/performanceByPublisher'.format(m)
             performance[m] = dict()
             result = self._get_performance_data_for_path(path, start_day, end_day)
-            for pub_data in result:
-                performance[m][pub_data['id']] = pub_data
+            for data in result:
+                performance[m][data['id']] = data
+        return performance
+
+    def get_campaitn_performace_per_section(self, campaign_ids, start_day, end_day):
+        """
+        :returns: dict[marketer_id][publisher_id] = performance_data
+        """
+        performance = dict()
+        for c in campaign_ids:
+            path = 'campaigns/{0}/performanceBySection'.format(c)
+            performance[c] = dict()
+            result = self._get_performance_data_for_path(path, start_day, end_day)
+            for data in result:
+                performance[c][data['id']] = data
         return performance
 
     #----------------------------------------------------------------------------------------------

@@ -109,13 +109,13 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         config = yaml.load(open('outbrain.yml.example', 'r'))
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
 
-        api._yield_all_campaign_ids = MagicMock(return_value= [])
+        api._yield_all_campaigns = MagicMock(return_value= [])
         res = api.get_campaign_ids()
         assert_equal(res, [])
 
-        api._yield_all_campaign_ids = MagicMock(return_value= ['x', 'y', 'z'])
+        api._yield_all_campaigns = MagicMock(return_value= [{'id': 'x'}, {'id': 'y'}])
         res = api.get_campaign_ids()
-        assert_equal(res, ['x', 'y', 'z'])
+        assert_equal(res, ['x', 'y'])
 
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
     def test_get_campaigns_per_budget(self):

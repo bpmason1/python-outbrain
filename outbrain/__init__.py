@@ -73,16 +73,19 @@ class OutbrainAmplifyApi(object):
         return result
 
     def get_campaign_ids(self):
-        return [c for c in self._yield_all_campaign_ids()]
+        return [c['id'] for c in self.get_campaigns()]
 
-    def _yield_all_campaign_ids(self):
+    def get_campaigns(self):
+        return [c for c in self._yield_all_campaigns()]
+
+    def _yield_all_campaigns(self):
         marketers = self.get_marketers()
         marketer_ids = [m['id'] for m in marketers]
 
         marketer_campaigns = self.get_campaigns_per_marketer(marketer_ids)
         for m in marketer_campaigns.keys():
             for c in marketer_campaigns[m]:
-                yield c['id']
+                yield c
 
     def get_campaigns_per_budget(self, budget_ids):
         campaigns = {}

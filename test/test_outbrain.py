@@ -185,12 +185,12 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         path = 'marketers/marketer_id_mock/performanceByPublisher'
         params = {'from': '2015-04-01', 'to': '2015-04-03', 'limit': 20, 'offset': 3}
         api._request = MagicMock(return_value={})
-        result = api._page_performance_data(path, start, end, 20, 3)
+        result = api._get_performance_data(path, start, end, 20, 3)
         api._request.assert_called_with(path, params)
         assert_equal(result, [])
 
         api._request = MagicMock(return_value={'details': 'details_mock'})
-        result = api._page_performance_data(path, start, end, 20, 3)
+        result = api._get_performance_data(path, start, end, 20, 3)
         api._request.assert_called_with(path, params)
         assert_equal(result, 'details_mock')
 

@@ -6,7 +6,7 @@ import os
 
 setup(
     name='outbrain',
-    version='0.0.4',
+    version='0.0.6',
     author='Brian Mason',
     author_email='bmsaon@simplereach.com',
     url='https://github.com/andessen/python-outbrain',
@@ -17,7 +17,7 @@ setup(
         'python-dateutil >= 2.1',
         'requests >= 2.4.3',
         'pyyaml >= 3.10',
-        'simplejson >= 3.6.0',
+        'simplejson >= 3.1.0',
     ],
     keywords=['outbrain','api', 'amplify'],
     classifiers=['Intended Audience :: Developers']

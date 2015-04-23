@@ -109,6 +109,19 @@ class OutbrainAmplifyApi(object):
     #----------------------------------------------------------------------------------------------
     # Methods to acquire specific performance information
     #----------------------------------------------------------------------------------------------
+    def get_campaign_performace_per_promoted_link(self, campaign_ids, start_day, end_day):
+        """
+        :returns: dict[campaign_id][publisher_id] = performance_data
+        """
+        performance = dict()
+        for c in campaign_ids:
+            path = 'campaigns/{0}/performanceByPromotedLink'.format(c)
+            performance[c] = dict()
+            result = self._page_performance_data(path, start_day, end_day)
+            for data in result:
+                performance[c][data['id']] = data
+        return performance
+
     def get_campaign_performace_per_publisher(self, campaign_ids, start_day, end_day):
         """
         :returns: dict[campaign_id][publisher_id] = performance_data

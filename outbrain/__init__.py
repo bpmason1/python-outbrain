@@ -38,7 +38,7 @@ class OutbrainAmplifyApi(object):
     def get_marketers(self):
         path = 'marketers'
         results = self._request(path)
-        return results['marketers']
+        return results.get('marketers', [])
 
     def get_marketer_ids(self):
         marketers = self.get_marketers()
@@ -60,7 +60,7 @@ class OutbrainAmplifyApi(object):
         for marketing_id in marketer_ids:
             path = '/marketers/{0}/budgets'.format(marketing_id)
             results = self._request(path)
-            marketer_budgets = results['budgets']
+            marketer_budgets = results.get('budgets', [])
             budgets[marketing_id] = marketer_budgets
         return budgets
 
@@ -92,7 +92,7 @@ class OutbrainAmplifyApi(object):
         for budget_id in budget_ids:
             path = 'budgets/{0}/campaigns'.format(budget_id)
             results = self._request(path)            
-            budget_campaigns = results['campaigns']
+            budget_campaigns = results.get('campaigns', [])
             campaigns[budget_id] = budget_campaigns
         return campaigns
 
@@ -102,7 +102,7 @@ class OutbrainAmplifyApi(object):
             path = 'marketers/{0}/campaigns'.format(marketing_id)
             params = {'includeArchived': 'true' if include_archived else 'false'}
             results = self._request(path, params)            
-            marketer_campaigns = results['campaigns']
+            marketer_campaigns = results.get('campaigns', [])
             campaigns[marketing_id] = marketer_campaigns
         return campaigns
 

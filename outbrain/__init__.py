@@ -42,10 +42,7 @@ class OutbrainAmplifyApi(object):
 
     def get_marketer_ids(self):
         marketers = self.get_marketers()
-        marketer_ids = []
-        for m in marketers:
-            marketer_ids.append(m['id'])
-        return marketer_ids
+        return [marketer['id'] for marketer in marketers]
 
     #----------------------------------------------------------------------------------------------
     # Methods to acquire budget information

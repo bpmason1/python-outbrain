@@ -193,30 +193,6 @@ class OutbrainAmplifyApi(object):
                   'to': end.strftime('%Y-%m-%d')}
         result = self._request(path, params)
         return result.get('details', [])
-    #----------------------------------------------------------------------------------------------
-
-    # def get_daily_performance(self, promoted_link_ids, start_day=None, end_day=None):
-    #     if not end_day:
-    #         end_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)    
-    #     if not start_day:
-    #         start_day = end_day - timedelta(days=1)
-    #     
-    #     daily_link_performance = {}
-    #     for promoted_link_id in promoted_link_ids:
-    #         path = 'promotedLinks/' + promoted_link_id + '/performanceByDay/'
-    #         
-    #         daily_link_performance[promoted_link_id] = {}
-    #         current_day = start_day
-    #         while current_day < end_day:
-    #             next_day = current_day + timedelta(days=1)
-    #             params = {'from': current_day.date(), 'to': next_day.date()}
-    #             results = self._request(path, params)
-    #             
-    #             metrics = results['overallMetrics']
-    #             if metrics['cost'] + metrics['impressions'] + metrics['clicks'] > 0:
-    #                 daily_link_performance[promoted_link_id][current_day] = metrics
-    #             current_day += timedelta(days=1)
-    #     return daily_link_performance
 
     #----------------------------------------------------------------------------------------------
     # Methods to acquire promoted link information

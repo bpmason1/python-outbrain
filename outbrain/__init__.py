@@ -76,9 +76,7 @@ class OutbrainAmplifyApi(object):
         return [c for c in self._yield_all_campaigns()]
 
     def _yield_all_campaigns(self):
-        marketers = self.get_marketers()
-        marketer_ids = [m['id'] for m in marketers]
-
+        marketer_ids = self.get_marketer_ids()
         marketer_campaigns = self.get_campaigns_per_marketer(marketer_ids)
         for m in marketer_campaigns.keys():
             for c in marketer_campaigns[m]:

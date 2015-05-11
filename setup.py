@@ -6,7 +6,7 @@ import os
 
 setup(
     name='outbrain',
-    version='0.0.7',
+    version='0.0.8',
     author='Brian Mason',
     author_email='bmsaon@simplereach.com',
     url='https://github.com/andessen/python-outbrain',

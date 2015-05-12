@@ -162,6 +162,17 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api.get_campaigns_per_marketer(['abc123'], include_archived=False)
         _request_mock.assert_called_with(path, {'includeArchived': 'false'})
 
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    @patch('outbrain.OutbrainAmplifyApi._request')
+    def test_get_promoted_link(self, request_mock):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+        ids = [1, 2, 'a4f']
+        for i in ids:
+            request_mock.reset_mock()
+            api.get_promoted_link(i)
+            request_mock.assert_called_with('promotedLinks/' + str(i))
+
     @patch('requests.get', MagicMock())
     @patch('outbrain.OutbrainAmplifyApi._yield_promoted_links_for_campaign',
            MagicMock(return_value=[1, 'b', 3]))
@@ -226,7 +237,7 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
 
     @patch('outbrain.OutbrainAmplifyApi._request')
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
-    def test_get_campaign(self, _request_mock):
+    def test_get_currencies(self, _request_mock):
         config = yaml.load(open('outbrain.yml.example', 'r'))
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
 

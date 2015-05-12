@@ -195,6 +195,11 @@ class OutbrainAmplifyApi(object):
     #----------------------------------------------------------------------------------------------
     # Methods to acquire promoted link information
     #----------------------------------------------------------------------------------------------
+    def get_promoted_link(self, promoted_link_id):
+        path = 'promotedLinks/{id}'.format(id=promoted_link_id)
+        result = self._request(path)
+        return result
+
     def get_promoted_links_per_campaign(self, campaign_ids=[], enabled=None, statuses=[]):
         campaign_ids = campaign_ids or self.get_campaign_ids()
         promoted_links = dict()

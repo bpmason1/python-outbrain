@@ -1,3 +1,4 @@
+import pytz
 import requests
 import simplejson as json
 import yaml
@@ -11,6 +12,7 @@ class OutbrainAmplifyApi(object):
         self.password = outbrain_config['password']
         self.base_url = outbrain_config['base_url']
         self.token = self.get_token(self.user, self.password)
+        self.locale = pytz.timezone ("US/Eastern") # Outbrain's reporting is in Eastern time
 
     def _request(self, path, params={}):
         url = self.base_url + path
@@ -183,6 +185,13 @@ class OutbrainAmplifyApi(object):
         return result
 
     def _get_performance_data(self, path, start, end, limit, offset):
+        if not start.tzinfo:
+            start = start.replace(tzinfo=pytz.UTC)
+        if not end.tzinfo:
+            end = end.replace(tzinfo=pytz.UTC)
+        start = start.astimezone(self.locale)
+        end = end.astimezone(self.locale)
+
         params = {'limit': limit,
                   'offset': offset,
                   'from': start.strftime('%Y-%m-%d'),

@@ -1,4 +1,4 @@
-python-dateutil >= 2.1
-requests >= 2.4.3
+pytz >= 2013.6
 pyyaml >= 3.10
+requests >= 2.4.3
 simplejson >= 3.1.0

@@ -2,21 +2,20 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-import os
 
 setup(
     name='outbrain',
-    version='0.0.9',
+    version='0.0.10',
     author='Brian Mason',
     author_email='bmsaon@simplereach.com',
-    url='https://github.com/andessen/python-outbrain',
+    url='https://github.com/bmason/python-outbrain',
     packages=['outbrain'],
     license='LGPL 2.1 or later',
     description='Wrapper for the Outbrain Amplify API',
     install_requires=[
-        'python-dateutil >= 2.1',
-        'requests >= 2.4.3',
+        'pytz >= 2013.6',
         'pyyaml >= 3.10',
+        'requests >= 2.4.3',
         'simplejson >= 3.1.0',
     ],
     keywords=['outbrain','api', 'amplify'],

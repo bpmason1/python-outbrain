@@ -1,5 +1,3 @@
-from dateutil.parser import parse
-from datetime import datetime, timedelta
 import requests
 import simplejson as json
 import yaml

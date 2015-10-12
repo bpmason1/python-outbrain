@@ -3,6 +3,7 @@ import requests
 import simplejson as json
 import yaml
 
+
 class OutbrainAmplifyApi(object):
 
     def __init__(self, outbrain_config=None):
@@ -12,12 +13,11 @@ class OutbrainAmplifyApi(object):
         self.password = outbrain_config['password']
         self.base_url = outbrain_config['base_url']
         self.token = self.get_token(self.user, self.password)
-        self.locale = pytz.timezone ("US/Eastern") # Outbrain's reporting is in Eastern time
+        self.locale = pytz.timezone("US/Eastern")  # Outbrain's reporting is in Eastern time
 
     def _request(self, path, params={}):
         url = self.base_url + path
-        r = requests.get(url, headers={'OB-TOKEN-V1': self.token},
-            params=params) 
+        r = requests.get(url, headers={'OB-TOKEN-V1': self.token}, params=params)
         return json.loads(r.text)
 
     def get_token(self, user, password):
@@ -27,9 +27,9 @@ class OutbrainAmplifyApi(object):
         results = json.loads(r.text)
         return results['OB-TOKEN-V1']
 
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     # Methods to acquire marketer information
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     def get_marketer(self, marketer_id):
         path = 'marketers/{0}'.format(marketer_id)
         result = self._request(path)
@@ -44,9 +44,9 @@ class OutbrainAmplifyApi(object):
         marketers = self.get_marketers()
         return [marketer['id'] for marketer in marketers]
 
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     # Methods to acquire budget information
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     def get_budget(self, budget_id):
         path = 'budgets/{0}'.format(budget_id)
         result = self._request(path)
@@ -61,9 +61,9 @@ class OutbrainAmplifyApi(object):
             budgets[marketing_id] = marketer_budgets
         return budgets
 
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     # Methods to acquire campaign information
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     def get_campaign(self, campaign_id):
         path = 'campaigns/' + campaign_id
         result = self._request(path)
@@ -86,7 +86,7 @@ class OutbrainAmplifyApi(object):
         campaigns = {}
         for budget_id in budget_ids:
             path = 'budgets/{0}/campaigns'.format(budget_id)
-            results = self._request(path)            
+            results = self._request(path)
             budget_campaigns = results.get('campaigns', [])
             campaigns[budget_id] = budget_campaigns
         return campaigns
@@ -96,14 +96,14 @@ class OutbrainAmplifyApi(object):
         for marketing_id in marketing_ids:
             path = 'marketers/{0}/campaigns'.format(marketing_id)
             params = {'includeArchived': 'true' if include_archived else 'false'}
-            results = self._request(path, params)            
+            results = self._request(path, params)
             marketer_campaigns = results.get('campaigns', [])
             campaigns[marketing_id] = marketer_campaigns
         return campaigns
 
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     # Methods to acquire specific performance information
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     def get_campaign_performace_per_promoted_link(self, campaign_ids, start_day, end_day):
         """
         :returns: dict[campaign_id][publisher_id] = performance_data
@@ -169,9 +169,9 @@ class OutbrainAmplifyApi(object):
                 performance[c][data['id']] = data
         return performance
 
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     # "Private" helper methods for acquiring/paging performance information
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     def _page_performance_data(self, path, start, end):
         result = []
         offset = 0
@@ -199,9 +199,9 @@ class OutbrainAmplifyApi(object):
         result = self._request(path, params)
         return result.get('details', [])
 
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     # Methods to acquire promoted link information
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     def get_promoted_link(self, promoted_link_id):
         path = 'promotedLinks/{id}'.format(id=promoted_link_id)
         result = self._request(path)
@@ -239,9 +239,9 @@ class OutbrainAmplifyApi(object):
 
         return self._request(path, params).get('promotedLinks', [])
 
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     # Other methods
-    #----------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------
     def get_currencies(self):
         results = self._request('currencies')
         return results.get('currencies', [])

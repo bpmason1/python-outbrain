@@ -7,7 +7,7 @@ setup(
     name='outbrain',
     version='0.0.10',
     author='Brian Mason',
-    author_email='bmsaon@simplereach.com',
+    author_email='bmason@simplereach.com',
     url='https://github.com/bmason/python-outbrain',
     packages=['outbrain'],
     license='LGPL 2.1 or later',

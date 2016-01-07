@@ -12,7 +12,7 @@ class OutbrainAmplifyApi(object):
         self.user = outbrain_config['user']
         self.password = outbrain_config['password']
         self.base_url = outbrain_config['base_url']
-        if self.base_url.endswith('/'):
+        if not self.base_url.endswith('/'):
             self.base_url += '/'
             
         self.token = self.get_token(self.user, self.password)

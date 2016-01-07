@@ -12,6 +12,9 @@ class OutbrainAmplifyApi(object):
         self.user = outbrain_config['user']
         self.password = outbrain_config['password']
         self.base_url = outbrain_config['base_url']
+        if self.base_url.endswith('/'):
+            self.base_url += '/'
+            
         self.token = self.get_token(self.user, self.password)
         self.locale = pytz.timezone("US/Eastern")  # Outbrain's reporting is in Eastern time
 
@@ -21,7 +24,7 @@ class OutbrainAmplifyApi(object):
         return json.loads(r.text)
 
     def get_token(self, user, password):
-        token_url = self.base_url + '/login'
+        token_url = self.base_url + 'login'
         basic_auth = requests.auth.HTTPBasicAuth(user, password)
         r = requests.get(token_url, auth=basic_auth)
         results = json.loads(r.text)

@@ -27,6 +27,7 @@ setup(
     description='Wrapper for the Outbrain Amplify API',
     install_requires=INSTALL_REQUIRE,
     tests_require=TEST_REQUIRE,
+    test_suite='test',
     keywords=['outbrain','api', 'amplify'],
     classifiers=['Intended Audience :: Developers']
 )

@@ -14,7 +14,7 @@ class OutbrainAmplifyApi(object):
         self.base_url = outbrain_config['base_url']
         if not self.base_url.endswith('/'):
             self.base_url += '/'
-            
+
         self.token = self.get_token(self.user, self.password)
         self.locale = pytz.timezone("US/Eastern")  # Outbrain's reporting is in Eastern time
 

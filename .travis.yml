@@ -7,8 +7,10 @@ python:
     - "3.4"
 
 install:
-    - "pip install setuptools==15.1"
-    - "pip install -r requirements/dev.txt"
+    - "pip install setuptools==20.0"
+    - "python setup.py install"
+
 # command to run tests
 script:
-    - "nosetests"
+    - "make lint"
+    - "make test"

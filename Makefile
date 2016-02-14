@@ -2,14 +2,18 @@ export NOSE_INIT_MODULE=tests.nose_init
 export PYTHONPATH=.
 export TZ=UTC
 
-build:
-	$(NOOP)
+install:
+	pip install setuptools==20.0
+	python setup.py install
+
+install-dev: install
+	pip install -r ./requirements/dev.txt
 
 test:
 	nosetests ./test -v
 
 lint:
-	pep8 outbrain --ignore=E123,E126,E128,E265,E501
+	flake8 outbrain --ignore=E123,E126,E128,E265,E501
 
 clean:
 	python setup.py clean

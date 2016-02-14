@@ -29,8 +29,19 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
         assert_equal(api.token, "token_mock")
         result = api._request('path_mock', 'params_mock')
+
+        expected_url = 'https://api.outbrain.com/amplify/v0.1/path_mock'
+        expected_headers = {'OB-TOKEN-V1': 'token_mock'}
+        expected_params = 'params_mock'
+        requests_get_mock.assert_called_with(expected_url, headers=expected_headers, params=expected_params)
         assert_true(isinstance(result, dict))
         assert_equal(result, {'result_key': 'result_value'})
+
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock(return_value="token_mock"))
+    def test_request__illegal_http_method(self):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+        assert_raises(ValueError, api._request, 'path_mock', method='BOOM')
 
     @patch('requests.get')
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock(return_value="token_mock"))

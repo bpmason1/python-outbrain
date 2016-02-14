@@ -18,9 +18,15 @@ class OutbrainAmplifyApi(object):
         self.token = self.get_token(self.user, self.password)
         self.locale = pytz.timezone("US/Eastern")  # Outbrain's reporting is in Eastern time
 
-    def _request(self, path, params={}):
+    def _request(self, path, params={}, method='GET'):
+        if method not in ['GET', 'POST', 'PUT', 'DELETE']:
+            raise ValueError('Illegal HTTP method {}'.format(method))
+
         url = self.base_url + path
-        r = requests.get(url, headers={'OB-TOKEN-V1': self.token}, params=params)
+
+        request_func = getattr(requests, method.lower())
+        r = request_func(url, headers={'OB-TOKEN-V1': self.token}, params=params)
+
         if 200 <= r.status_code < 300:
             return json.loads(r.text)
         return None

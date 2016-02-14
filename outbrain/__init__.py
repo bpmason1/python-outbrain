@@ -21,7 +21,9 @@ class OutbrainAmplifyApi(object):
     def _request(self, path, params={}):
         url = self.base_url + path
         r = requests.get(url, headers={'OB-TOKEN-V1': self.token}, params=params)
-        return json.loads(r.text)
+        if 200 <= r.status_code < 300:
+            return json.loads(r.text)
+        return None
 
     def get_token(self, user, password):
         token_url = self.base_url + 'login'

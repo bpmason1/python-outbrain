@@ -30,7 +30,22 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         assert_equal(api.token, "token_mock")
         result = api._request('path_mock', 'params_mock')
         assert_true(isinstance(result, dict))
-        assert_equal(result, {'request_key': 'request_value'})
+        assert_equal(result, {'result_key': 'result_value'})
+
+    @patch('requests.get')
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock(return_value="token_mock"))
+    def test_request__various_status_codes(self, requests_get_mock):
+        for status_code in [199, 200, 201, 299, 300, 301, 404, 500]:
+            requests_get_mock.return_value = create_mock_request_result(status_code=status_code)
+
+            config = yaml.load(open('outbrain.yml.example', 'r'))
+            api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+            assert_equal(api.token, "token_mock")
+            result = api._request('path_mock', 'params_mock')
+            if 200 <= status_code < 300:
+                assert_true(isinstance(result, dict))
+            else:
+                assert_equal(result, None)
 
     @patch('requests.get')
     def test_get_token(self, requests_get_mock):
@@ -261,8 +276,9 @@ def create_mock_token():
     token.text = '{"OB-TOKEN-V1": {"mock_key": "mock_value"}}'
     return token
 
-def create_mock_request_result():
+def create_mock_request_result(status_code=None):
     result = MagicMock()
-    result.text = '{"request_key": "request_value"}'
+    result.text = '{"result_key": "result_value"}'
+    result.status_code = status_code or 200
     return result
 

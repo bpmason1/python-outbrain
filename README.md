@@ -23,7 +23,7 @@ Edit usename and password (note that this is the outbrain username and not the u
 ```python
 outbrain = OutbrainAmplifyApi()
 for marketer_id in outbrain.get_marketer_ids():
-    marketer = outbrain.get_marketer()
+    marketer = outbrain.get_marketer(marketer_id)
 
 campaigns = outbrain.get_campaigns()
 ```

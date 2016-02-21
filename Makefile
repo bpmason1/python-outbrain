@@ -2,14 +2,14 @@ export NOSE_INIT_MODULE=tests.nose_init
 export PYTHONPATH=.
 export TZ=UTC
 
-install:
+install: clean
 	pip install setuptools==20.0
 	python setup.py install
 
 install-dev: install
 	pip install -r ./requirements/dev.txt
 
-test:
+test: clean
 	nosetests ./test -v
 
 lint:

@@ -25,7 +25,10 @@ class OutbrainAmplifyApi(object):
         url = self.base_url + path
 
         request_func = getattr(requests, method.lower())
-        r = request_func(url, headers={'OB-TOKEN-V1': self.token}, params=params)
+
+        headers = {'OB-TOKEN-V1': self.token,
+                   'Content-Type': 'application/json'}
+        r = request_func(url, headers=headers, params=params)
 
         if 200 <= r.status_code < 300:
             return json.loads(r.text)

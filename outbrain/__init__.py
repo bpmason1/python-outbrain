@@ -1,3 +1,6 @@
+from outbrain.types import BudgetType, PacingType
+
+import datetime
 import pytz
 import requests
 import simplejson as json
@@ -18,7 +21,7 @@ class OutbrainAmplifyApi(object):
         self.token = self.get_token(self.user, self.password)
         self.locale = pytz.timezone("US/Eastern")  # Outbrain's reporting is in Eastern time
 
-    def _request(self, path, params={}, method='GET'):
+    def _request(self, path, params={}, data={}, method='GET'):
         if method not in ['GET', 'POST', 'PUT', 'DELETE']:
             raise ValueError('Illegal HTTP method {}'.format(method))
 
@@ -28,7 +31,7 @@ class OutbrainAmplifyApi(object):
 
         headers = {'OB-TOKEN-V1': self.token,
                    'Content-Type': 'application/json'}
-        r = request_func(url, headers=headers, params=params)
+        r = request_func(url, headers=headers, params=params, data=data)
 
         if 200 <= r.status_code < 300:
             return json.loads(r.text)
@@ -74,6 +77,52 @@ class OutbrainAmplifyApi(object):
             marketer_budgets = results.get('budgets', [])
             budgets[marketing_id] = marketer_budgets
         return budgets
+
+    def create_budget(self, marketer_id, name, amount, run_forever, budget_type, pace_type, start_date, end_date=None, daily_max=None):
+        if not isinstance(run_forever, bool):
+            raise TypeError('run_forever must be either True or False')
+
+        if not isinstance(budget_type, BudgetType):
+            raise TypeError('budget_type must be an instance of type BudgetType')
+
+        if not isinstance(pace_type, PacingType):
+            raise TypeError('pace_type must be an instance of type PacingType')
+
+        if pace_type not in [PacingType.ASAP, PacingType.DAILY]:
+            raise ValueError('Pace type %s not allowed for budgets ... please use ASAP or DAILY', pace_type.value)
+
+        if not (1 <= len(name) <= 100):
+            raise ValueError('Budget names must have between 1 and 100 characteres')
+
+        if not run_forever and end_date is None:
+            raise ValueError('Budgets with run_forever=False must set an end_date')
+
+        if not isinstance(start_date, datetime.datetime):
+            raise TypeError('start_date must be a datetime')
+
+        if end_date is not None and not isinstance(end_date, datetime.datetime):
+            raise TypeError('end_date must be a datetime or None')
+
+        if pace_type is PacingType.DAILY and daily_max is None:
+            raise AttributeError('When pace_type is DAILY then daily_max must be specified')
+
+        data = {
+            'name': name,
+            'amount': float(amount),
+            'runForever': run_forever,
+            'startDate': start_date.strftime('%Y-%m-%d'),
+            'type': budget_type.value,
+            'pacing': pace_type.value
+        }
+
+        if not run_forever:
+            data['endDate'] = end_date.strftime('%Y-%m-%d')
+
+        if daily_max:
+            data['dailyTarget'] = daily_max
+
+        endpoint = 'marketers/%s/budgets' % marketer_id
+        self._request(endpoint, data=data)
 
     # ----------------------------------------------------------------------------------------------
     # Methods to acquire campaign information

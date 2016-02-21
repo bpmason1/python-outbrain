@@ -9,7 +9,7 @@ install: clean
 install-dev: install
 	pip install -r ./requirements/dev.txt
 
-test: clean
+test: install
 	nosetests ./test -v
 
 lint:

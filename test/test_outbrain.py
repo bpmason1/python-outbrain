@@ -1,7 +1,9 @@
+from outbrain.types import BudgetType, PacingType
+
+import copy
+import datetime
 from mock import patch, MagicMock
 from nose.tools import assert_equal, assert_raises, assert_true
-
-import datetime
 import outbrain
 import unittest
 import yaml
@@ -119,6 +121,41 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
         api.get_budgets_per_marketer(marketer_ids)
         assert_equal(api._request.call_count, len(marketer_ids))
 
+    @patch('outbrain.OutbrainAmplifyApi._request')
+    @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
+    def test_create_budget(self, request_mock):
+        config = yaml.load(open('outbrain.yml.example', 'r'))
+        api = outbrain.OutbrainAmplifyApi(outbrain_config=config)
+        start = datetime.datetime.utcnow()
+        args = ['123', 'My Mock Budget', 50.50, True, BudgetType.MONTHLY, PacingType.ASAP, start]
+        result = api.create_budget(*args)
+
+        data = {'startDate': start.strftime('%Y-%m-%d'), 'runForever': True, 'name': 'My Mock Budget', 'pacing': 'SPEND_ASAP', 'amount': 50.5, 'type': 'MONTHLY'}
+        request_mock.assert_called_with('marketers/123/budgets', data=data)
+
+        # test that name length is between 1 and 100 characters
+        for size in [0, 1, 100, 101]:
+            bad_args = copy.deepcopy(args)
+            bad_args[1] = 'x'*size
+            if size < 1 or 100 < size:
+                assert_raises(ValueError, api.create_budget, *bad_args)
+            else:
+                tmp_data = copy.deepcopy(data)
+                tmp_data['name'] = 'x'*size
+                result = api.create_budget(*bad_args)  # maybe the args aren't so bad
+                request_mock.assert_called_with('marketers/123/budgets', data=tmp_data)
+
+        bad_args = copy.deepcopy(args)
+        bad_args[3] = False
+        assert_raises(ValueError, api.create_budget, *bad_args)  # if run_forever is False then end_data can't be None
+        end = datetime.datetime.utcnow()
+        bad_args.append(end)
+        result = api.create_budget(*bad_args)
+        tmp_data = copy.deepcopy(data)
+        tmp_data['runForever'] = False
+        tmp_data['endDate'] = end.strftime('%Y-%m-%d')
+        request_mock.assert_called_with('marketers/123/budgets', data=tmp_data)
+        
     @patch('outbrain.OutbrainAmplifyApi._request')
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
     def test_get_campaign(self, _request_mock):

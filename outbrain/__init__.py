@@ -132,15 +132,18 @@ class OutbrainAmplifyApi(object):
         result = self._request(path)
         return result
 
-    def get_campaign_ids(self):
-        return [c['id'] for c in self.get_campaigns()]
+    def get_campaign_ids(self, include_archived=False):
+        params = {'fetch': 'basic', 'includeArchived': bool(include_archived)}
+        return [c['id'] for c in self.get_campaigns(params)]
 
-    def get_campaigns(self):
-        return [c for c in self._yield_all_campaigns()]
+    def get_campaigns(self, params={}):
+        default_params = {'fetch': 'all', 'includeArchived': True}
+        default_params.update(params)
+        return [c for c in self._yield_all_campaigns(default_params)]
 
-    def _yield_all_campaigns(self):
+    def _yield_all_campaigns(self, params):
         marketer_ids = self.get_marketer_ids()
-        marketer_campaigns = self.get_campaigns_per_marketer(marketer_ids)
+        marketer_campaigns = self.get_campaigns_per_marketer(marketer_ids, params)
         for m in marketer_campaigns.keys():
             for c in marketer_campaigns[m]:
                 yield c
@@ -154,12 +157,13 @@ class OutbrainAmplifyApi(object):
             campaigns[budget_id] = budget_campaigns
         return campaigns
 
-    def get_campaigns_per_marketer(self, marketing_ids, include_archived=True):
+    def get_campaigns_per_marketer(self, marketing_ids, params={}):
+        default_params = {'fetch': 'all', 'includeArchived': False}
+        default_params.update(params)  # merge the user specified params into the defaults
         campaigns = {}
         for marketing_id in marketing_ids:
             path = 'marketers/{0}/campaigns'.format(marketing_id)
-            params = {'includeArchived': 'true' if include_archived else 'false'}
-            results = self._request(path, params)
+            results = self._request(path, default_params)
             marketer_campaigns = results.get('campaigns', [])
             campaigns[marketing_id] = marketer_campaigns
         return campaigns

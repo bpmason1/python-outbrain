@@ -180,6 +180,7 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
 
         api._yield_all_campaigns = MagicMock(return_value= [{'id': 'x'}, {'id': 'y'}])
         res = api.get_campaign_ids()
+        api._yield_all_campaigns.assert_called_with({'fetch': 'basic', 'includeArchived': False})
         assert_equal(res, ['x', 'y'])
 
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
@@ -217,15 +218,15 @@ class TestOutbrainAmplifyApi(unittest.TestCase):
 
         _request_mock.reset_mock()
         api.get_campaigns_per_marketer(['abc123'])
-        _request_mock.assert_called_with(path, {'includeArchived': 'true'})
+        _request_mock.assert_called_with(path, {'fetch': 'all', 'includeArchived': False})
 
         _request_mock.reset_mock()
-        api.get_campaigns_per_marketer(['abc123'], include_archived=True)
-        _request_mock.assert_called_with(path, {'includeArchived': 'true'})
+        api.get_campaigns_per_marketer(['abc123'], params={'foo': 'bar'})
+        _request_mock.assert_called_with(path, {'fetch': 'all', 'includeArchived': False, 'foo': 'bar'})
 
         _request_mock.reset_mock()
-        api.get_campaigns_per_marketer(['abc123'], include_archived=False)
-        _request_mock.assert_called_with(path, {'includeArchived': 'false'})
+        api.get_campaigns_per_marketer(['abc123'], params={'includeArchived': True})
+        _request_mock.assert_called_with(path, {'fetch': 'all', 'includeArchived': True})
 
     @patch('outbrain.OutbrainAmplifyApi.get_token', MagicMock())
     @patch('outbrain.OutbrainAmplifyApi._request')

@@ -33,8 +33,12 @@ class OutbrainAmplifyApi(object):
                    'Content-Type': 'application/json'}
         r = request_func(url, headers=headers, params=params, data=data)
 
-        if 200 <= r.status_code < 300:
-            return json.loads(r.text)
+        if method is 'GET':
+            if 200 <= r.status_code < 300:
+                return json.loads(r.text)
+        else:
+            return r.ok
+
         return None
 
     def get_token(self, user, password):
@@ -122,7 +126,31 @@ class OutbrainAmplifyApi(object):
             data['dailyTarget'] = daily_max
 
         endpoint = 'marketers/%s/budgets' % marketer_id
-        self._request(endpoint, data=data)
+        return self._request(endpoint, data=data)
+
+    def update_budget(self, budget_id, name=None, amount=None, run_forever=None, budget_type=None,
+                      pace_type=None, start_date=None, end_date=None, daily_max=None):
+        data = {
+            'name': name,
+            'amount': amount,
+            'runForever': run_forever,
+            'type': budget_type.value if budget_type else None,
+            'pacing': pace_type.value if pace_type else None,
+            'dailyTarget': daily_max
+        }
+
+        for field in data.keys():
+            if data[field] is None:
+                del data[field]
+
+        if start_date:
+            data['startDate'] = start_date.strftime('%Y-%m-%d')
+
+        if end_date:
+            data['endDate'] = end_date.strftime('%Y-%m-%d')
+
+        endpoint = "budgets/{}".format(budget_id)
+        return self._request(endpoint, data=data, method='PUT')
 
     # ----------------------------------------------------------------------------------------------
     # Methods to acquire campaign information

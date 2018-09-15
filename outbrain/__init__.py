@@ -3,7 +3,7 @@ from outbrain.types import BudgetType, PacingType
 import datetime
 import pytz
 import requests
-import simplejson as json
+import json
 import yaml
 
 
